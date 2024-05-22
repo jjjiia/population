@@ -2,19 +2,21 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Create a rotating globe</title>
+<title>grided population</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
+
 </head>
 <body>
 <style>
-    #btn-spin {
+ body { margin: 0; padding: 0; }
+#map { position: absolute; 
+    top: 0; bottom: 0; width: 100%;
+    z-index:-1;
+ }
+   #btn-spin {
         font:
             bold 12px/20px 'Helvetica Neue',
             Arial,
@@ -38,7 +40,6 @@ body { margin: 0; padding: 0; }
         background-color: #4ea0da;
     }
     #population{
-        font-size:30px;
         max-width: fit-content;
         margin-left: auto;
         margin-right: auto;        
@@ -46,32 +47,61 @@ body { margin: 0; padding: 0; }
         z-index:1;
         font-family:sans-serif;
         padding:20px;
-        letter-spacing:5px;
+        letter-spacing:2px;
     }
-    #map{
-        z-index:-1;
+    #population_count{
+        font-size:30px;
+
     }
+    #population_label{
+        font-size:12px;
+
+    }
+    #resolution{
+        font-family:sans-serif; 
+        z-index:1;
+        position:absolute;
+        right:10px;
+        bottom:10px;
+        background-color:rgba(255,255,255,.5);
+        color:black;
+        max-width: 150px;
+        font-size:12px;
+        padding:10px
+    }
+
 </style>
 <div id="map"></div>
-<div id="population">text</div>
+
+<div id="population">
+<div id="population_label">population on screen</div>
+<div id="population_count"></div>
+</div>
+<div id="resolution">data resolution</div>
 <!-- <button id="btn-spin">Pause rotation</button> -->
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
     const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/jjjiia123/cltok6uyi002201p5cvhba8ms',
+        style: 'mapbox://styles/jjjiia123/clwh5h74302i601nx919j2i98',
         projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
-        zoom: 1.5,
-        center: [-90, 40]
+        zoom: 1.2,
+        center: [-90, 40],
+        maxZoon:12
     });
 
 
 
     map.on('load', () => {
+        d3.select(".mapboxgl-ctrl-bottom-right").remove()
+        d3.select("#resolution")
+        .html("showing population data at 1 degree resolution")
+
+
          map.setFog({
                 "range": [0, .01],
      "color": "orange",
-    "horizon-blend": .1,
+    "horizon-blend": .5,
     "high-color": "magenta",
     "space-color": "#ffffff",
     "star-intensity": 0.15
@@ -79,26 +109,49 @@ body { margin: 0; padding: 0; }
     getPop(map)
     });
 
-    map.on('move',() => {
+    map.on('moveend',() => {
         getPop(map)
-
     })
 
 
 function getPop(map){
     
     var bbox = [[0,0],[window.innerWidth,window.innerHeight]]
-        const dots = map.queryRenderedFeatures(bbox, {
-            layers: ['30min-allsquares-centroids-8g9alu']
+
+    var currentZoom = map.getZoom()
+
+    if(currentZoom<=2){
+        currentLayer = '1degree-z0'
+        var resolution = "1 degree"
+
+    }else if(currentZoom<=3){
+        currentLayer = '30min-z2'
+        var resolution = ".5 degrees or 30 minutes"
+
+    }else if (currentZoom<=6){
+        currentLayer = '15min-z3'
+        var resolution = "0.25 degrees or 15 minutes"
+
+    }else{
+        currentLayer = '2pt5min-z6'
+        var resolution = "0.417 degrees or 2.5 minutes"
+
+    }
+    d3.select("#resolution").html("showing population data at "+resolution+" resolution")
+        
+              const dots = map.queryRenderedFeatures(bbox, {
+            layers: [currentLayer]
            });
      //   console.log(map.getStyle().layers)
      //   console.log(dots)
         var totalPop =0
         for(var d in dots){
-            var dotPop = dots[d].properties.DN
-            totalPop+=dotPop
+            var dotPop = dots[d].properties.count
+            if(dotPop>0){
+                totalPop+=dotPop
+            }
         }
-         d3.select("#population").html(totalPop.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+         d3.select("#population_count").html(totalPop.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
 
 }
 
