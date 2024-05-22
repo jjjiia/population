@@ -48,14 +48,17 @@
         font-family:sans-serif;
         padding:20px;
         letter-spacing:2px;
-    }
+        background-color:rgba(255,255,255,.5);
+        padding:5px }
+
     #population_count{
         font-size:30px;
+       
 
     }
     #population_label{
         font-size:12px;
-
+        text-align:center;
     }
     #resolution{
         font-family:sans-serif; 
@@ -98,14 +101,17 @@
         .html("showing population data at 1 degree resolution")
 
 
-         map.setFog({
-                "range": [0, .01],
-     "color": "orange",
-    "horizon-blend": .5,
-    "high-color": "magenta",
-    "space-color": "#ffffff",
-    "star-intensity": 0.15
-        }); // Set the default atmosphere style
+    //      map.setFog({
+    //             "range": [0, .01],
+    //  "color": "orange",
+    // "horizon-blend": .5,
+    // "high-color": "magenta",
+    // "space-color": "#ffffff",
+    // "star-intensity": 0.15
+    //     });
+        
+    //     // Set the default atmosphere style
+
     getPop(map)
     });
 
