@@ -21,6 +21,15 @@
 <body>
 
 <style>
+   .mapboxgl-ctrl-group button{
+    width:40px;
+    height:40px;
+    background-color:rgba(0,255,255,.3);
+
+   }
+   .mapboxgl-ctrl-group button:focus{
+    background-color:rgba(0,255,255,1);
+   }
 .boxdraw {
     background: rgba(56,135,190,0.1);
     border: 2px solid #ff00ff;
@@ -60,13 +69,47 @@ var map = new mapboxgl.Map({
 });
 
 var draw = new MapboxDraw({
+    userProperties: true,
+
     displayControlsDefault: false,
     defaultMode: 'draw-polygon',
     controls: {
         polygon: true,
-        lasso:true
-       // trash: true
-    }
+         trash: true
+    },
+    styles: [
+            {
+                'id': 'gl-draw-polygon-fill-active',
+                'type': 'fill',
+                'paint': {
+                    'fill-color': ['case', ['boolean', ['get', 'user_valid'], false],  '#00ffff','#00ffff'],
+                    'fill-outline-color': '#00ffff',
+                    'fill-opacity': ['case', ['boolean', ['get', 'user_valid'], false],  .2,0],
+                }
+            },
+            {
+                'id': 'gl-draw-polygon-stroke-active',
+                'type': 'line',
+                'layout': {
+                    'line-cap': 'round',
+                    'line-join': 'round'
+                },
+                'paint': {
+                    'line-color': '#00ffff',
+                    'line-width': 2
+                }
+            },
+            {
+                'id': 'gl-draw-polygon-and-line-vertex-active',
+                'type': 'circle',
+               
+                'paint': {
+                    'circle-radius': 5,
+                    'circle-color': '#00ffff',
+                }
+            }
+
+    ]
 });
 map.addControl(draw);
 
@@ -83,15 +126,17 @@ map.on('load', function() {
     map.on('draw.create', function(e){
         console.log(draw)
         var userPolygon = e.features[0];
-
+        draw.setFeatureProperty(userPolygon.id, 'valid', true)
         getPopFromPolygon(userPolygon)
        // map.setFilter("counties-highlighted", filter);
-
+console.log("create")
     }); 
 
     map.on('draw.update', function(e) {
     var userPolygon = e.features[0];
     getPopFromPolygon(userPolygon)
+
+
     
 
 });
@@ -151,7 +196,7 @@ function getPopFromPolygon(userPolygon){
           }
 
     //  console.log(totalPopulation)
-      d3.select("#population").html("population in shape is "+totalPopulation)
+      d3.select("#population").html("population in shape is "+totalPopulation.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
 
       });
 }
