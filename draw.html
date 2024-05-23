@@ -35,6 +35,11 @@
     padding:5px;
     font-family:sans-serif;
     letter-spacing: 2px;
+    width:100px;
+    height:100px;
+    position:absolute;
+    top:10px;
+    left:10px;
 }
 </style>
 <div id='population'>draw a shape to get population inside</div>
@@ -50,15 +55,16 @@ var map = new mapboxgl.Map({
         center: [-98, 38.88],
      minZoom: 0,
     zoom: 4,
-    maxZoom:12
+    maxZoom:12,
+    attributionControl: false
 });
 
 var draw = new MapboxDraw({
     displayControlsDefault: false,
     defaultMode: 'draw-polygon',
-
     controls: {
-        polygon: true//,
+        polygon: true,
+        lasso:true
        // trash: true
     }
 });
