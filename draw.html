@@ -1,239 +1,152 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>grided population</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js'></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.css' rel='stylesheet' />
 
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v0.18.0/mapbox-gl-draw.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v0.18.0/mapbox-gl-draw.css' type='text/css'/>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%;z-index:-1; }
+    </style>
 </head>
 <body>
+
 <style>
- body { margin: 0; padding: 0; }
-#map { position: absolute; 
-    top: 0; bottom: 0; width: 100%;
-    z-index:-1;
- }
-   #btn-spin {
-        font:
-            bold 12px/20px 'Helvetica Neue',
-            Arial,
-            Helvetica,
-            sans-serif;
-        background-color: #3386c0;
-        color: #fff;
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        z-index: 1;
-        border: none;
-        width: 200px;
-        margin-left: -100px;
-        display: block;
-        cursor: pointer;
-        padding: 10px 20px;
-        border-radius: 3px;
-    }
-    #btn-spin:hover {
-        background-color: #4ea0da;
-    }
-    #population{
-        max-width: fit-content;
-        margin-left: auto;
-        margin-right: auto;        
-        color:black;
-        z-index:1;
-        font-family:sans-serif;
-        padding:20px;
-        letter-spacing:2px;
-        padding:5px }
-
-    #population_count{
-        font-size:30px;
-       
-
-    }
-    #population_label{
-        font-size:12px;
-        text-align:center;
-    }
-    #resolution{
-        font-family:sans-serif; 
-        z-index:1;
-        position:absolute;
-        right:10px;
-        bottom:10px;
-        background-color:rgba(255,255,255,.5);
-        color:black;
-        max-width: 150px;
-        font-size:12px;
-        padding:10px
-    }
-
+.boxdraw {
+    background: rgba(56,135,190,0.1);
+    border: 2px solid #3887be;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+}
+#population{
+    z-index:2;
+    padding:5px;
+    font-family:sans-serif;
+    letter-spacing: 2px;
+}
 </style>
-<div id="map"></div>
+<div id='population'>draw a shape to get population inside</div>
 
-<div id="population">
-<div id="population_label">population on screen</div>
-<div id="population_count"></div>
-</div>
-<div id="resolution">data resolution</div>
-<!-- <button id="btn-spin">Pause rotation</button> -->
+<div id='map'></div>
+
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/jjjiia123/clwh5h74302i601nx919j2i98',
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/jjjiia123/clwh5h74302i601nx919j2i98',
         projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
-        zoom: 1.2,
-        center: [-90, 40],
-        maxZoon:12
-    });
+        center: [-98, 38.88],
+     minZoom: 0,
+    zoom: 4,
+    maxZoom:12
+});
 
+var draw = new MapboxDraw({
+    displayControlsDefault: false,
+    defaultMode: 'draw-polygon',
 
+    controls: {
+        polygon: true//,
+       // trash: true
+    }
+});
+map.addControl(draw);
 
-    map.on('load', () => {
-        d3.select(".mapboxgl-ctrl-bottom-right").remove()
-        d3.select("#resolution")
-        .html("showing population data at 1 degree resolution")
+// Disable default box zooming.
+map.boxZoom.disable();
 
+// Create a popup, but don't add it to the map yet.
+var popup = new mapboxgl.Popup({
+    closeButton: false
+});
 
-    //      map.setFog({
-    //             "range": [0, .01],
-    //  "color": "orange",
-    // "horizon-blend": .5,
-    // "high-color": "magenta",
-    // "space-color": "#ffffff",
-    // "star-intensity": 0.15
-    //     });
-        
-    //     // Set the default atmosphere style
+map.on('load', function() {
+   
+    map.on('draw.create', function(e){
+        console.log(draw)
+        var userPolygon = e.features[0];
 
-    getPop(map)
-    });
+        getPopFromPolygon(userPolygon)
+       // map.setFilter("counties-highlighted", filter);
 
-    map.on('moveend',() => {
-    getPop(map)
-            
-    })
+    }); 
 
-
-function getPop(map){
+    map.on('draw.update', function(e) {
+    var userPolygon = e.features[0];
+    getPopFromPolygon(userPolygon)
     
-    var bbox = [[0,0],[window.innerWidth,window.innerHeight]]
 
-    var currentZoom = map.getZoom()
+});
 
-    if(currentZoom<=2){
-        currentLayer = '1degree-z0'
-        var resolution = "1 degree"
-
-    }else if(currentZoom<=3){
-        currentLayer = '30min-z2'
-        var resolution = ".5 degrees or 30 minutes"
-
-    }else if (currentZoom<=6){
-        currentLayer = '15min-z3'
-        var resolution = "0.25 degrees or 15 minutes"
-
-    }else{
-        currentLayer = '2pt5min-z6'
-        var resolution = "0.417 degrees or 2.5 minutes"
-
+map.on('draw.modechange', (e) => {
+    if(draw.getAll().features.length>1){
+        draw.delete(draw.getAll().features[0].id)
     }
-    d3.select("#resolution").html("showing population data at "+resolution+" resolution")
-        
-              const dots = map.queryRenderedFeatures(bbox, {
-            layers: [currentLayer]
-           });
-     //   console.log(map.getStyle().layers)
-     //   console.log(dots)
-        var totalPop =0
-        for(var d in dots){
-            var dotPop = dots[d].properties.count
-            if(dotPop>0){
-                totalPop+=dotPop
-            }
-        }
-         d3.select("#population_count").html(totalPop.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+    
+})
+    
+});
 
+
+function getPopFromPolygon(userPolygon){
+     // generate bounding box from polygon the user drew
+     var polygonBoundingBox = turf.bbox(userPolygon);
+      
+      var southWest = [polygonBoundingBox[0], polygonBoundingBox[1]];
+      var northEast = [polygonBoundingBox[2], polygonBoundingBox[3]];
+
+      var northEastPointPixel = map.project(northEast);
+      var southWestPointPixel = map.project(southWest);
+
+      var currentZoom = map.getZoom()
+
+      if(currentZoom<=2){
+          var currentLayer = '1degree-z0'
+          var resolution = "1 degree"
+
+      }else if(currentZoom<=3){
+          var currentLayer = '30min-z2'
+          var resolution = ".5 degrees or 30 minutes"
+
+      }else if (currentZoom<=6){
+          var currentLayer = '15min-z3'
+          var resolution = "0.25 degrees or 15 minutes"
+
+      }else{
+          var currentLayer = '2pt5min-z6'
+          var resolution = "0.417 degrees or 2.5 minutes"
+
+      }
+
+      var features = map.queryRenderedFeatures([southWestPointPixel, northEastPointPixel],
+       { layers: [currentLayer] });
+       var totalPopulation = 0
+  
+       features.reduce(function(memo, feature) {
+
+          var center = feature
+    
+          if(turf.inside(feature,userPolygon)){
+              totalPopulation+=feature.properties.count
+          }
+
+    //  console.log(totalPopulation)
+      d3.select("#population").html("population in shape is "+totalPopulation)
+
+      });
 }
-
-    // The following values can be changed to control rotation speed:
-
-    // At low zooms, complete a revolution every two minutes.
-    const secondsPerRevolution = 120;
-    // Above zoom level 5, do not rotate.
-    const maxSpinZoom = 5;
-    // Rotate at intermediate speeds between zoom levels 3 and 5.
-    const slowSpinZoom = 3;
-
-    let userInteracting = true;
-    let spinEnabled = false;
-
-    function spinGlobe() {
-        const zoom = map.getZoom();
-        if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
-            let distancePerSecond = 360 / secondsPerRevolution;
-            if (zoom > slowSpinZoom) {
-                // Slow spinning at higher zooms
-                const zoomDif =
-                    (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
-                distancePerSecond *= zoomDif;
-            }
-            const center = map.getCenter();
-            center.lng -= distancePerSecond;
-            // Smoothly animate the map over one second.
-            // When this animation is complete, it calls a 'moveend' event.
-            map.easeTo({ center, duration: 1000, easing: (n) => n });
-        }
-    }
-
-    // Pause spinning on interaction
-    map.on('mousedown', () => {
-        userInteracting = true;
-    });
-
-    // Restart spinning the globe when interaction is complete
-    map.on('mouseup', () => {
-        userInteracting = false;
-        spinGlobe();
-    });
-
-    // These events account for cases where the mouse has moved
-    // off the map, so 'mouseup' will not be fired.
-    map.on('dragend', () => {
-        userInteracting = false;
-        spinGlobe();
-    });
-    map.on('pitchend', () => {
-        userInteracting = false;
-        spinGlobe();
-    });
-    map.on('rotateend', () => {
-        userInteracting = false;
-        spinGlobe();
-    });
-
-    // When animation is complete, start spinning if there is no ongoing interaction
-    map.on('moveend', () => {
-        spinGlobe();
-    });
-
-    document.getElementById('btn-spin').addEventListener('click', (e) => {
-        spinEnabled = !spinEnabled;
-        if (spinEnabled) {
-            spinGlobe();
-            e.target.innerHTML = 'Pause rotation';
-        } else {
-            map.stop(); // Immediately end ongoing animation
-            e.target.innerHTML = 'Start rotation';
-        }
-    });
-
-    spinGlobe();
 </script>
 
 </body>
