@@ -23,7 +23,7 @@
 <style>
 .boxdraw {
     background: rgba(56,135,190,0.1);
-    border: 2px solid #3887be;
+    border: 2px solid #ff00ff;
     position: absolute;
     top: 0;
     left: 0;
@@ -99,6 +99,8 @@ map.on('load', function() {
 map.on('draw.modechange', (e) => {
     if(draw.getAll().features.length>1){
         draw.delete(draw.getAll().features[0].id)
+        d3.select("#population").html("draw a shape to get population inside")
+
     }
     
 })
