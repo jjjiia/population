@@ -74,7 +74,9 @@
         font-size:12px;
         padding:10px
     }
-
+    a {
+  color: #000000;
+}
 </style>
 <div id="map"></div>
 
@@ -150,7 +152,9 @@ function getPop(map){
 
     }
     d3.select("#resolution")
-    .html("showing population data at <strong>"+resolution+" resolution</strong>")
+    .html("showing population data at <strong>"+resolution
+        +" resolution</strong><br>"
+        +"<a href =\"https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11/data-download\" target=\"_blank\">data source</a>")
         
               const dots = map.queryRenderedFeatures(bbox, {
             layers: [currentLayer]
