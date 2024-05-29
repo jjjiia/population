@@ -122,10 +122,13 @@
     });
 
     map.on('moveend',() => {
-           var currentPop = getPop(map)
-           if(currentPop==0){
+        var currentPop = getPop(map)
 
-           }
+        map.on('idle',function(){
+            var currentPop = getPop(map)
+
+        })
+           
             
     })
 
@@ -169,6 +172,9 @@ function getPop(map){
             if(dotPop>0){
                 totalPop+=dotPop
             }
+        }
+        if(totalPop==0){
+            totalPop = "-"
         }
          d3.select("#population_count").html(totalPop.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
 return totalPop
