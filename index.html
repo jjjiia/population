@@ -47,16 +47,19 @@
         z-index:1;
         font-family:sans-serif;
         padding:20px;
-        letter-spacing:2px;
+        letter-spacing:1px;
         padding:5px }
 
-    #population_count{
-        font-size:30px;
-       
 
+    #population_count{
+        font-size:36px;
+        font-weight:600;
+        -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #ffffff;
+    color:#f6511d;
     }
     #population_label{
-        font-size:12px;
+        font-size:16px;
         text-align:center;
     }
     #resolution{
@@ -100,14 +103,14 @@
         .html("showing population data at 1 degree resolution")
 
 
-         map.setFog({
-            "range": [.005, .001],
-     "color": "rgba(255,215,0,.2)",
-    "horizon-blend": .005,
-    "high-color": "#ffffff",
-    "space-color": "#ffffff",
-    "star-intensity": 0
-        });
+    //      map.setFog({
+    //         "range": [.005, .001],
+    //  "color": "rgba(255,215,0,.2)",
+    // "horizon-blend": .005,
+    // "high-color": "#fffff3",
+    // "space-color": "#fffff3",
+    // "star-intensity": 0
+    //     });
         
         // Set the default atmosphere style
 
@@ -146,7 +149,8 @@ function getPop(map){
         var resolution = "0.417 degrees or 2.5 minutes"
 
     }
-    d3.select("#resolution").html("showing population data at "+resolution+" resolution")
+    d3.select("#resolution")
+    .html("showing population data at <strong>"+resolution+" resolution</strong>")
         
               const dots = map.queryRenderedFeatures(bbox, {
             layers: [currentLayer]
