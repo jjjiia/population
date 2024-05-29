@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>gridded population</title>
+<title>population</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
@@ -71,7 +71,8 @@
         color:black;
         max-width: 150px;
         font-size:16px;
-        padding:10px
+        padding:10px;
+        border:1px solid black;
     }
     a {
   color: #000000;
@@ -83,7 +84,7 @@
 <div id="population_label">population on screen</div>
 <div id="population_count"></div>
 </div>
-<div id="resolution">data resolution</div>
+<div id="resolution"></div>
 <!-- <button id="btn-spin">Pause rotation</button> -->
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
@@ -91,7 +92,7 @@
         container: 'map',
         style: 'mapbox://styles/jjjiia123/clws4ai0n01h001qe1o468l9t',
         projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
-        zoom: 1.2,
+        zoom: .5,
         center: [-90, 40],
         maxZoon:12
     });
@@ -100,7 +101,8 @@
 
 
     map.on('load', () => {
-        d3.select(".mapboxgl-ctrl-bottom-right").remove()
+        d3.select(".mapboxgl-ctrl-logo").remove()
+      //  d3.select(".mapboxgl-ctrl-bottom-left").remove()
         d3.select("#resolution")
         .html("showing population data at 1 degree resolution")
 
