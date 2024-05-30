@@ -48,7 +48,7 @@
         font-family:sans-serif;
         padding:20px;
         letter-spacing:1px;
-        padding:5px }
+        padding:5px;}
 
 
     #population_count{
@@ -66,7 +66,7 @@
         font-family:sans-serif; 
         z-index:1;
         position:absolute;
-        right:10px;
+        left:10px;
         bottom:10px;
         color:black;
         max-width: 150px;
@@ -77,14 +77,55 @@
     a {
   color: #000000;
 }
+#legend{
+    position:absolute;
+    right:10px;
+    bottom:100px;
+    height:40px;
+    width:100px;
+    font-size:12px;
+    font-family:sans-serif;
+}
+#color-key-label{
+    width:100px;
+    text-align:justify;
+}
+#color-key{
+    width:100px;
+    height:10px;
+    background: rgb(246,81,29);
+background: linear-gradient(90deg, rgba(246,81,29,0.10711749188311692) 27%, rgba(246,81,29,1) 79%);
+}
+#about{
+    width:30%;
+    min-width: 300px;
+    height:200px;
+    margin:0 auto;
+    margin-top:10%;
+    background-color:rgba(255,255,255,.7);
+    font-family:sans-serif;
+}
 </style>
 <div id="map"></div>
 
+<div id="legend">persons per km<sup>2</sup>
+    <div id="color-key-label">0 &nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp &nbsp &nbsp &nbsp1000</div>
+    <div id="color-key"></div>
+</div>
 <div id="population">
 <div id="population_label">population on screen</div>
 <div id="population_count"></div>
 </div>
 <div id="resolution"></div>
+<!-- <div id="about">
+    <strong>This map calculates the total population that is visible on screen at any given time.
+</strong><br><br>Depending on the zoom level, the data visible is at 1 of 5 resolutions.
+    The dataset is vectorized and joined from 2020 versions of 	
+    UN WPP-Adjusted population count and density 
+    geotiffs provided by Socioeconomic Data and Applications Center (sedac).
+    See data <a href="https://sedac.ciesin.columbia.edu/data/collection/gpw-v4/sets/browse">here</a>.
+    
+</div> -->
 <!-- <button id="btn-spin">Pause rotation</button> -->
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiampqaWlhMTIzIiwiYSI6ImNpbDQ0Z2s1OTN1N3R1eWtzNTVrd29lMDIifQ.gSWjNbBSpIFzDXU2X5YCiQ';
@@ -97,7 +138,7 @@
         maxZoon:12
     });
 
-    map.addControl(new mapboxgl.ScaleControl());
+    map.addControl(new mapboxgl.ScaleControl(),'bottom-right');
 
 
     map.on('load', () => {
@@ -159,7 +200,7 @@ function getPop(map){
     d3.select("#resolution")
     .html("showing population data at <strong>"+resolution
         +" resolution</strong><br>"
-        +"<a href =\"https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11/data-download\" target=\"_blank\">data source</a>")
+        +"<a href =\"https://www.dataminding.studio/work-2/gridded-world-population\" target=\"_blank\">About</a>")
         
               const dots = map.queryRenderedFeatures(bbox, {
             layers: [currentLayer]
